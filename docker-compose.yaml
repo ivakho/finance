@@ -1,0 +1,13 @@
+---
+
+services:
+  db:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./.database/postgres:/var/lib/postgresql
+    environment:
+      - POSTGRES_PASSWORD=qwerty
+      - POSTGRES_DB=myapp 
+    ports:
+      - 5442:5432
