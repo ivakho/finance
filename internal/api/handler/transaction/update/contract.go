@@ -3,5 +3,5 @@ package update
 import "context"
 
 type usecaseUpdateTransaction interface {
-	Update(ctx context.Context, id int, amount float64) error
+	Update(ctx context.Context, id int, amount int64) error
 }

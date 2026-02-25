@@ -8,3 +8,4 @@ import (
 type transactionRepo interface {
 	GetTransaction(ctx context.Context, id int) (model.Transaction, error)
 }
+
