@@ -1,4 +1,4 @@
-package get_all
+package get_expense
 
 import (
 	"net/http"
@@ -16,14 +16,14 @@ type Transaction struct {
 
 type Transactions []Transaction
 
-func (h *Handler) GetAllTransaction(c *gin.Context) {
+func (h *Handler) GetExpense(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	result, err := h.usecaseGetAllTransaction.GetAll(c.Request.Context(), id)
+	result, err := h.usecaseGetExpense.GetExpense(c.Request.Context(), id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

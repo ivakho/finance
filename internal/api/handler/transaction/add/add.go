@@ -7,8 +7,9 @@ import (
 )
 
 type RequestBody struct {
-	CategoryID int `json:"category_id" binding:"required"`
-	Amount     int64 `json:"amount" binding:"required"`
+	CategoryID int    `json:"category_id" binding:"required"`
+	Type       string `json:"type" binding:"required"`
+	Amount     int64  `json:"amount" binding:"required"`
 }
 
 func (h *Handler) AddTransaction(c *gin.Context) {
@@ -18,10 +19,10 @@ func (h *Handler) AddTransaction(c *gin.Context) {
 		return
 	}
 
-	if err := h.usecaseTransactionAdd.Add(c.Request.Context(), requestBody.CategoryID, requestBody.Amount); err != nil {
+	if err := h.usecaseTransactionAdd.Add(c.Request.Context(), requestBody.CategoryID, requestBody.Type, requestBody.Amount); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "success", "status": http.StatusOK})
+	c.Status(http.StatusOK)
 }

@@ -3,7 +3,6 @@ package category
 import (
 	"context"
 	"errors"
-	modelcategory "finance/internal/model"
 	postgresstorage "finance/internal/storage"
 	"fmt"
 	"time"
@@ -24,26 +23,25 @@ func New(db *postgresstorage.Postgres) *storage {
 func (s *storage) AddCategory(ctx context.Context, name string) error {
 	query := "insert into category (name, created_at) values ($1, $2)"
 
-	// Говорят, что лучше использовать ExecContext, т.к. нам не надо возвращать row
-	// еще пишут, что без Scan() соединение зависнет и не вернётся в пул
-	row := s.postgresdb.DB.QueryRowContext(ctx, query, name, time.Now())
-	if row.Err() != nil {
-		return fmt.Errorf("QueryRowContext: %w", row.Err())
+	_, err := s.postgresdb.DB.ExecContext(ctx, query, name, time.Now())
+	if err != nil {
+		return fmt.Errorf("QueryRowContext: %w", err)
 	}
+
 	return nil
 }
 
-func (s *storage) GetAllCategory(ctx context.Context) ([]modelcategory.Category, error) {
+func (s *storage) GetAllCategory(ctx context.Context) ([]Category, error) {
 	query := "select id, name, created_at, updated_at from category"
 	rows, err := s.postgresdb.DB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("QueryContext: %w", err)
 	}
 	defer rows.Close()
-	categories := make([]modelcategory.Category, 0)
+	categories := make([]Category, 0)
 
 	for rows.Next() {
-		var category modelcategory.Category
+		var category Category
 		if err := rows.Scan(&category.ID, &category.Name, &category.CreatedAt, &category.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("Rows scan: %w", err)
 		}

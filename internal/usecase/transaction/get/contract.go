@@ -2,10 +2,10 @@ package get
 
 import (
 	"context"
-	"finance/internal/model"
+	storagemodel "finance/internal/storage/transaction"
+	"finance/internal/usecase/transaction"
 )
 
 type transactionRepo interface {
-	GetTransaction(ctx context.Context, id int) (model.Transaction, error)
+	GetTransaction(ctx context.Context, filter storagemodel.TransactionFilter) ([]transaction.Transaction, error)
 }
-

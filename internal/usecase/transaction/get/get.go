@@ -2,15 +2,25 @@ package get
 
 import (
 	"context"
-	"finance/internal/model"
+	storagemodel "finance/internal/storage/transaction"
+	"finance/internal/usecase/transaction"
 	"fmt"
 )
 
-func (u *Usecase) Get(ctx context.Context, id int) (model.Transaction, error) {
-	transaction, err := u.transactionRepo.GetTransaction(ctx, id)
+func (u *Usecase) Get(ctx context.Context, filter storagemodel.TransactionFilter) (transaction.Transactions, error) {
+	result, err := u.transactionRepo.GetTransaction(ctx, filter)
 	if err != nil {
-		return transaction, fmt.Errorf("Failed to get transaction: %w", err)
+		return transaction.Transactions{}, fmt.Errorf("Failed to get transaction: %w", err)
 	}
 
-	return transaction, nil
+	var total int64
+
+	for _, v := range result {
+		total += v.Amount
+	}
+
+	return transaction.Transactions{
+		Value: result,
+		Total: total,
+	}, nil
 }
