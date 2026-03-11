@@ -6,9 +6,9 @@ import (
 )
 
 type storage interface {
-	AddTransaction(ctx context.Context, categoryID int, amount float64) error
+	AddTransaction(ctx context.Context, categoryID int, amount int64) error
 	GetAllTransaction(ctx context.Context, categoryID int) ([]model.Transaction, error)
 	GetTransaction(ctx context.Context, id int) (model.Transaction, error)
-	UpdateTransaction(ctx context.Context, id int, amount float64) error
+	UpdateTransaction(ctx context.Context, id int, amount int64) error
 	DeleteTransaction(ctx context.Context, id int) error
 }

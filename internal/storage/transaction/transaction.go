@@ -20,7 +20,7 @@ func New(db *postgresstorage.Postgres) *storage {
 	return &storage{postgresdb: db}
 }
 
-func (s *storage) AddTransaction(ctx context.Context, categoryID int, amount float64) error {
+func (s *storage) AddTransaction(ctx context.Context, categoryID int, amount int64) error {
 	query := "insert into transaction (category_id, amount, created_at, updated_at) values ($1, $2, $3, $4)"
 	timeNow := time.Now()
 	_, err := s.postgresdb.DB.ExecContext(ctx, query, categoryID, amount, timeNow, timeNow)
@@ -73,7 +73,7 @@ func (s *storage) GetTransaction(ctx context.Context, id int) (model.Transaction
 	return transaction, nil
 }
 
-func (s *storage) UpdateTransaction(ctx context.Context, id int, amount float64) error {
+func (s *storage) UpdateTransaction(ctx context.Context, id int, amount int64) error {
 	query := "update transaction set amount = $1, updated_at = $2 where id = $3"
 
 	result, err := s.postgresdb.DB.ExecContext(ctx, query, amount, time.Now(), id)

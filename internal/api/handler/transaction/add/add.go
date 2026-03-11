@@ -8,7 +8,7 @@ import (
 
 type RequestBody struct {
 	CategoryID int `json:"category_id" binding:"required"`
-	Amount     float64 `json:"amount" binding:"required"`
+	Amount     int64 `json:"amount" binding:"required"`
 }
 
 func (h *Handler) AddTransaction(c *gin.Context) {

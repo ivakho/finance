@@ -13,7 +13,7 @@ func New(transactionStorage storage) *Repository {
 	return &Repository{transactionStorage: transactionStorage}
 }
 
-func (r *Repository) AddTransaction(ctx context.Context, categoryID int, amount float64) error {
+func (r *Repository) AddTransaction(ctx context.Context, categoryID int, amount int64) error {
 	return r.transactionStorage.AddTransaction(ctx, categoryID, amount)
 }
 
@@ -25,7 +25,7 @@ func (r *Repository) GetTransaction(ctx context.Context, id int) (model.Transact
 	return r.transactionStorage.GetTransaction(ctx, id)
 }
 
-func (r *Repository) UpdateTransaction(ctx context.Context, id int, amount float64) error {
+func (r *Repository) UpdateTransaction(ctx context.Context, id int, amount int64) error {
 	return r.transactionStorage.UpdateTransaction(ctx, id, amount)
 }
 
