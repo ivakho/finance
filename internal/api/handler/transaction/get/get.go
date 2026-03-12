@@ -25,12 +25,20 @@ func (h *Handler) GetTransaction(c *gin.Context) {
 
 	var dateFrom, dateTo *time.Time
 	if req.DateFrom != nil {
-		time, _ := time.Parse("2006-01-02", *req.DateFrom)
+		time, err := time.Parse(time.DateOnly, *req.DateFrom)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		dateFrom = &time
 	}
 
 	if req.DateTo != nil {
-		time, _ := time.Parse("2006-01-02", *req.DateTo)
+		time, err := time.Parse(time.DateOnly, *req.DateTo)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		dateTo = &time
 	}
 
