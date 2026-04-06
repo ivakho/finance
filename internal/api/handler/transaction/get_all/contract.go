@@ -2,9 +2,9 @@ package get_all
 
 import (
 	"context"
-	"finance/internal/model"
+	"finance/internal/usecase/transaction"
 )
 
 type usecaseGetAllTransaction interface {
-	GetAll(ctx context.Context, categoryID int) ([]model.Transaction, error)
+	GetAll(ctx context.Context, categoryID int) (transaction.Transactions, error)
 }

@@ -1,14 +1,13 @@
 package update
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type RequestBody struct {
-	ID     int `json:"id" binding:"required"`
+	ID     int   `json:"id" binding:"required"`
 	Amount int64 `json:"amount" binding:"required"`
 }
 
@@ -25,8 +24,5 @@ func (h *Handler) UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
-		"status":  http.StatusOK,
-		"value":   fmt.Sprintf("transaction amount was changed to %.2f", requestBody.Amount)})
+	c.Status(http.StatusOK)
 }

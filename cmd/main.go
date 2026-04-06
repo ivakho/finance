@@ -10,6 +10,9 @@ import (
 	deletetransaction "finance/internal/api/handler/transaction/delete"
 	gettransaction "finance/internal/api/handler/transaction/get"
 	getalltransaction "finance/internal/api/handler/transaction/get_all"
+	getexpensetransaction "finance/internal/api/handler/transaction/get_expense"
+	getincometransaction "finance/internal/api/handler/transaction/get_income"
+
 	updatetransaction "finance/internal/api/handler/transaction/update"
 	categoryrepo "finance/internal/repository/category"
 	transactionrepo "finance/internal/repository/transaction"
@@ -24,6 +27,9 @@ import (
 	usecasetransactiondelete "finance/internal/usecase/transaction/delete"
 	usecasetransactionget "finance/internal/usecase/transaction/get"
 	usecasetransactiongetall "finance/internal/usecase/transaction/get_all"
+	usecasetransactiongetexpense "finance/internal/usecase/transaction/get_expense"
+	usecasetransactiongetincome "finance/internal/usecase/transaction/get_income"
+
 	usecasetransactionupdate "finance/internal/usecase/transaction/update"
 
 	"log"
@@ -66,12 +72,17 @@ func main() {
 
 	usecaseTransactionAdd := usecasetransactionadd.New(transactionRepo)
 	usecaseTransactionGetAll := usecasetransactiongetall.New(transactionRepo)
+	usecaseTransactionGetIncome := usecasetransactiongetincome.New(transactionRepo)
+	usecaseTransactionGetExpense := usecasetransactiongetexpense.New(transactionRepo)
 	usecaseTransactionGet := usecasetransactionget.New(transactionRepo)
 	usecaseTransactionUpdate := usecasetransactionupdate.New(transactionRepo)
 	usecaseTransactionDelete := usecasetransactiondelete.New(transactionRepo)
 
 	handlerTransactionAdd := addtransaction.New(ctx, usecaseTransactionAdd)
 	handlerTransactionGetAll := getalltransaction.New(ctx, usecaseTransactionGetAll)
+	handlerTransactionGetIncome := getincometransaction.New(ctx, usecaseTransactionGetIncome)
+	handlerTransactionGetExpense := getexpensetransaction.New(ctx, usecaseTransactionGetExpense)
+
 	handlerTransactionGet := gettransaction.New(ctx, usecaseTransactionGet)
 	handlerTransactionUpdate := updatetransaction.New(ctx, usecaseTransactionUpdate)
 	handlerTransactionDelete := deletetransaction.New(ctx, usecaseTransactionDelete)
@@ -86,11 +97,13 @@ func main() {
 		category.DELETE("/:id", handlerCategoryDelete.DeleteCategory)
 	}
 
-	transaction := router.Group("/transaction")
+	transaction := router.Group("/transactions")
 	{
 		transaction.POST("/", handlerTransactionAdd.AddTransaction)
 		transaction.GET("/getAll/:id", handlerTransactionGetAll.GetAllTransaction)
-		transaction.GET("/:id", handlerTransactionGet.GetTransaction)
+		transaction.GET("/income/:id", handlerTransactionGetIncome.GetIncome)
+		transaction.GET("/expense/:id", handlerTransactionGetExpense.GetExpense)
+		transaction.GET("/", handlerTransactionGet.GetTransaction)
 		transaction.PUT("/", handlerTransactionUpdate.UpdateTransaction)
 		transaction.DELETE("/:id", handlerTransactionDelete.DeleteTransaction)
 	}

@@ -2,9 +2,9 @@ package get_all
 
 import (
 	"context"
-	modelcategory "finance/internal/model"
+	"finance/internal/usecase/category"
 )
 
 type categoryRepo interface {
-	GetAllCategory(ctx context.Context) ([]modelcategory.Category, error)
+	GetAllCategory(ctx context.Context) ([]category.Category, error)
 }
