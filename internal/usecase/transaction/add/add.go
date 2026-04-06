@@ -2,15 +2,17 @@ package add
 
 import (
 	"context"
+	"finance/internal/usecase/transaction"
 	"fmt"
+	"strings"
 )
 
-func (u *Usecase) Add(ctx context.Context, categoryID int, txType string, amount int64) error {
-	if txType == "expense" {
-		amount = -amount
+func (u *Usecase) Add(ctx context.Context, tx transaction.TransactionAdd) error {
+	if strings.ToLower(tx.TxType) == "expense" {
+		tx.Amount *= -1
 	}
 
-	if err := u.transactionRepo.AddTransaction(ctx, categoryID, txType, amount); err != nil {
+	if err := u.transactionRepo.AddTransaction(ctx, tx.CategoryID, tx.Amount, tx.CreatedAt); err != nil {
 		return fmt.Errorf("Failed to add transaction: %w", err)
 	}
 

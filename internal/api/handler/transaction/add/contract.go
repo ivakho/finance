@@ -1,7 +1,10 @@
 package add
 
-import "context"
+import (
+	"context"
+	"finance/internal/usecase/transaction"
+)
 
 type usecaseTransactionAdd interface {
-	Add(ctx context.Context, categoryID int, txType string, amount int64) error
+	Add(ctx context.Context, tx transaction.TransactionAdd) error
 }

@@ -2,10 +2,10 @@ package get
 
 import (
 	"context"
-	storagemodel "finance/internal/storage/transaction"
 	"finance/internal/usecase/transaction"
+	"time"
 )
 
 type usecaseGetTransaction interface {
-	Get(ctx context.Context, filter storagemodel.TransactionFilter) (transaction.Transactions, error)
+	Get(ctx context.Context, categoryID int, dateFrom, dateTo time.Time) (transaction.Transactions, error)
 }

@@ -1,7 +1,6 @@
 package get
 
 import (
-	"finance/internal/storage/transaction"
 	"net/http"
 	"time"
 
@@ -9,11 +8,9 @@ import (
 )
 
 type RequestParams struct {
-	CategoryID int     `form:"category_id"`
-	Type       string  `form:"type"`
-	DateFrom   *string `form:"date_from"`
-	DateTo     *string `form:"date_to"`
-	Limit      int     `form:"limit"`
+	CategoryID int    `form:"category_id"`
+	DateFrom   string `form:"date_from"`
+	DateTo     string `form:"date_to"`
 }
 
 func (h *Handler) GetTransaction(c *gin.Context) {
@@ -23,34 +20,26 @@ func (h *Handler) GetTransaction(c *gin.Context) {
 		return
 	}
 
-	var dateFrom, dateTo *time.Time
-	if req.DateFrom != nil {
-		time, err := time.Parse(time.DateOnly, *req.DateFrom)
+	var dateFrom, dateTo time.Time
+	if req.DateFrom != "" {
+		time, err := time.Parse(time.DateOnly, req.DateFrom)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		dateFrom = &time
+		dateFrom = time
 	}
 
-	if req.DateTo != nil {
-		time, err := time.Parse(time.DateOnly, *req.DateTo)
+	if req.DateTo != "" {
+		time, err := time.Parse(time.DateOnly, req.DateTo)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		dateTo = &time
+		dateTo = time
 	}
 
-	filter := transaction.TransactionFilter{
-		CategoryID: req.CategoryID,
-		Type:       req.Type,
-		DateFrom:   dateFrom,
-		DateTo:     dateTo,
-		Limit:      req.Limit,
-	}
-
-	transactions, err := h.usecaseGetTransaction.Get(c.Request.Context(), filter)
+	transactions, err := h.usecaseGetTransaction.Get(c.Request.Context(), req.CategoryID, dateFrom, dateTo)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

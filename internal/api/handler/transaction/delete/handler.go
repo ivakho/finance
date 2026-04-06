@@ -3,7 +3,7 @@ package delete
 import "context"
 
 type Handler struct {
-	ctx                   context.Context
+	ctx                      context.Context
 	usecaseDeleteTransaction usecaseDeleteTransaction
 }
 

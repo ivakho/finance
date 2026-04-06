@@ -3,19 +3,44 @@ package get_expense
 import (
 	"finance/internal/api/handler/transaction"
 	"net/http"
-	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
+type RequestParams struct {
+	CategoryID int    `form:"category_id"`
+	DateFrom   string `form:"date_from"`
+	DateTo     string `form:"date_to"`
+}
+
 func (h *Handler) GetExpense(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
+	var req RequestParams
+	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	result, err := h.usecaseGetExpense.GetExpense(c.Request.Context(), id)
+	var dateFrom, dateTo time.Time
+	if req.DateFrom != "" {
+		time, err := time.Parse(time.DateOnly, req.DateFrom)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		dateFrom = time
+	}
+
+	if req.DateTo != "" {
+		time, err := time.Parse(time.DateOnly, req.DateTo)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		dateTo = time
+	}
+
+	result, err := h.usecaseGetExpense.GetExpense(c.Request.Context(), req.CategoryID, dateFrom, dateTo)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

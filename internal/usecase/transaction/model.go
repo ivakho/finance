@@ -16,3 +16,10 @@ type Transactions struct {
 	Value []Transaction
 	Total int64
 }
+
+type TransactionAdd struct {
+	CategoryID int
+	TxType     string
+	Amount     int64
+	CreatedAt  time.Time
+}

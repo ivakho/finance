@@ -27,7 +27,12 @@ func (r *Repository) GetAllCategory(ctx context.Context) ([]category.Category, e
 	categories := make([]category.Category, 0, len(result))
 
 	for _, v := range result {
-		categories = append(categories, category.Category{ID: v.ID, Name: v.Name, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt})
+		categories = append(categories, category.Category{
+			ID:        v.ID,
+			Name:      v.Name,
+			CreatedAt: v.CreatedAt,
+			UpdatedAt: v.UpdatedAt,
+		})
 	}
 
 	return categories, nil
