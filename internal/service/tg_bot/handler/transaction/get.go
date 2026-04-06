@@ -67,9 +67,9 @@ func HandleGetTransaction(
 			msg = tgbotapi.NewMessage(chatID, "No transactions found")
 		} else {
 			text := "Transactions:\n\n"
-			for _, tx := range transactions {
+			for i, tx := range transactions {
 				date := tx.CreatedAt.Format(time.DateOnly)
-				text += fmt.Sprintf("%v USD | created: %s\n", tx.Amount, date)
+				text += fmt.Sprintf("%d) %v USD | Created: %s\n", i+1, tx.Amount, date)
 			}
 			msg = tgbotapi.NewMessage(chatID, text)
 		}
