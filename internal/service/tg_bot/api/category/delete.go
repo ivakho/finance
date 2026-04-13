@@ -15,12 +15,16 @@ func (s *Service) DeleteCategory(id int) error {
 	if err != nil {
 		return fmt.Errorf("failed to create delete request: %w", err)
 	}
-	
+
 	resp, err := s.client.Client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("delete category failed: status %d", resp.StatusCode)
+	}
 
 	return nil
 }

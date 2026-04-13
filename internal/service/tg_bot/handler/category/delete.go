@@ -21,9 +21,13 @@ func HandleDeleteCategory(service *category.Service, userState *state.UserState,
 
 	switch text {
 	case "Yes":
-		_ = service.DeleteCategory(id)
-		msg = tgbotapi.NewMessage(chatID, "Category deleted")
+		err := service.DeleteCategory(id)
+		if err != nil {
+			msg = tgbotapi.NewMessage(chatID, "Failed to delete category")
+			return msg
+		}
 
+		msg = tgbotapi.NewMessage(chatID, "Category deleted successfully")
 	case "No":
 		msg = tgbotapi.NewMessage(chatID, "Cancelled")
 
