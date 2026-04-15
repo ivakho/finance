@@ -1,6 +1,7 @@
 package update
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,5 +25,9 @@ func (h *Handler) UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
+		"status":  http.StatusOK,
+		"value":   fmt.Sprintf("amount was changed to %s", requestBody.Amount),
+	})
 }

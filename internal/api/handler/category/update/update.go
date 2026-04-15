@@ -28,5 +28,6 @@ func (h *Handler) UpdateCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success",
 		"status":  http.StatusOK,
-		"value":   fmt.Sprintf("category name was changed to %s", requestBody.Name)})
+		"value":   fmt.Sprintf("category name was changed to %s", requestBody.Name),
+	})
 }

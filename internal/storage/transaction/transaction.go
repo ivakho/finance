@@ -30,6 +30,31 @@ func (s *storage) AddTransaction(ctx context.Context, categoryID int, amount int
 	return nil
 }
 
+func (s *storage) GetTransactionByID(ctx context.Context, id int) (TransactionByID, error) {
+	query := `
+		select 
+			t.id,
+			t.category_id,
+			c.name,
+			t.amount,
+			t.created_at,
+			t.updated_at
+		from transactions t
+		join category c on t.category_id = c.id
+		where t.id = $1
+	`
+	var transaction TransactionByID
+
+	err := s.postgresdb.DB.QueryRowContext(ctx, query, id).
+		Scan(&transaction.ID, &transaction.CategoryID, &transaction.CategoryName, &transaction.Amount, &transaction.CreatedAt, &transaction.UpdatedAt)
+
+	if err != nil {
+		return TransactionByID{}, fmt.Errorf("QueryRowContext: %w", err)
+	}
+
+	return transaction, nil
+}
+
 func (s *storage) GetTransaction(ctx context.Context, categoryID int, dateFrom, dateTo time.Time) ([]Transaction, error) {
 
 	query := "select id, category_id, amount, created_at, updated_at from transactions where category_id=$1 and created_at::date >= $2 and created_at::date <= $3"
