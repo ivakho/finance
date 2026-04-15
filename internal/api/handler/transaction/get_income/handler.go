@@ -5,13 +5,13 @@ import (
 )
 
 type Handler struct {
-	ctx                   context.Context
+	ctx              context.Context
 	usecaseGetIncome usecaseGetIncome
 }
 
 func New(ctx context.Context, usecaseGetIncome usecaseGetIncome) *Handler {
 	return &Handler{
-		ctx:                   ctx,
+		ctx:              ctx,
 		usecaseGetIncome: usecaseGetIncome,
 	}
 }

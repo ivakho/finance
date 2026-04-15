@@ -20,10 +20,9 @@ func New(db *postgresstorage.Postgres) *storage {
 	return &storage{postgresdb: db}
 }
 
-func (s *storage) AddTransaction(ctx context.Context, categoryID int, txType string, amount int64) error {
-	query := "insert into transactions (category_id, type, amount, created_at, updated_at) values ($1, $2, $3, $4, $5)"
-	timeNow := time.Now()
-	_, err := s.postgresdb.DB.ExecContext(ctx, query, categoryID, txType, amount, timeNow, timeNow)
+func (s *storage) AddTransaction(ctx context.Context, categoryID int, amount int64, createdAt time.Time) error {
+	query := "insert into transactions (category_id, amount, created_at, updated_at) values ($1, $2, $3, $4)"
+	_, err := s.postgresdb.DB.ExecContext(ctx, query, categoryID, amount, createdAt, nil)
 	if err != nil {
 		return fmt.Errorf("ExecContext:%w", err)
 	}
@@ -31,88 +30,11 @@ func (s *storage) AddTransaction(ctx context.Context, categoryID int, txType str
 	return nil
 }
 
-func (s *storage) GetTransactions(ctx context.Context, categoryID int, query string) ([]Transaction, error) {
-	rows, err := s.postgresdb.DB.QueryContext(ctx, query, categoryID)
-	if err != nil {
-		return nil, fmt.Errorf("QueryContext: %w", err)
-	}
-	defer rows.Close()
+func (s *storage) GetTransaction(ctx context.Context, categoryID int, dateFrom, dateTo time.Time) ([]Transaction, error) {
 
-	var transactions []Transaction
+	query := "select id, category_id, amount, created_at, updated_at from transactions where category_id=$1 and created_at::date >= $2 and created_at::date <= $3"
 
-	for rows.Next() {
-		var transaction Transaction
-		if err := rows.Scan(&transaction.ID, &transaction.CategoryID, &transaction.Amount, &transaction.CreatedAt, &transaction.UpdatedAt); err != nil {
-			return nil, fmt.Errorf("Rows scan:%w", err)
-		}
-		transactions = append(transactions, transaction)
-	}
-
-	if rows.Err() != nil {
-		return nil, fmt.Errorf("Rows iteration:%w", rows.Err())
-	}
-
-	return transactions, nil
-}
-
-func (s *storage) GetAllTransaction(ctx context.Context, categoryID int) ([]Transaction, error) {
-	query := "select id, category_id, amount, created_at, updated_at from transactions where category_id = $1"
-
-	return s.GetTransactions(ctx, categoryID, query)
-}
-
-func (s *storage) GetExpense(ctx context.Context, categoryID int) ([]Transaction, error) {
-	query := "select id, category_id, amount, created_at, updated_at from transactions where category_id = $1 AND amount < 0"
-
-	return s.GetTransactions(ctx, categoryID, query)
-}
-
-func (s *storage) GetIncome(ctx context.Context, categoryID int) ([]Transaction, error) {
-	query := "select id, category_id, amount, created_at, updated_at from transactions where category_id = $1 AND amount > 0"
-
-	return s.GetTransactions(ctx, categoryID, query)
-}
-
-func (s *storage) GetTransaction(ctx context.Context, filter TransactionFilter) ([]Transaction, error) {
-
-	query := "select id, category_id, type, amount, created_at, updated_at from transactions where 1=1"
-
-	var args []interface{}
-	argsPos := 1
-
-	if filter.CategoryID != 0 {
-		query += fmt.Sprintf(" and category_id=$%d", argsPos)
-		args = append(args, filter.CategoryID)
-		argsPos++
-	}
-
-	if filter.Type != "" {
-		query += fmt.Sprintf(" and type=$%d", argsPos)
-		args = append(args, filter.Type)
-		argsPos++
-	}
-
-	if filter.DateFrom != nil {
-		query += fmt.Sprintf(" and created_at::date >= $%d", argsPos)
-		args = append(args, filter.DateFrom)
-		argsPos++
-	}
-
-	if filter.DateTo != nil {
-		query += fmt.Sprintf(" and created_at::date <= $%d", argsPos)
-		args = append(args, filter.DateTo)
-		argsPos++
-	}
-
-	limit := defaultLimit
-	if filter.Limit > 0 {
-		limit = filter.Limit
-	}
-
-	query += fmt.Sprintf(" limit $%d", argsPos)
-	args = append(args, limit)
-
-	rows, err := s.postgresdb.DB.QueryContext(ctx, query, args...)
+	rows, err := s.postgresdb.DB.QueryContext(ctx, query, categoryID, dateFrom, dateTo)
 	if err != nil {
 		return nil, fmt.Errorf("QueryContext:%w", err)
 	}
@@ -122,7 +44,7 @@ func (s *storage) GetTransaction(ctx context.Context, filter TransactionFilter) 
 	for rows.Next() {
 		var transaction Transaction
 
-		if err := rows.Scan(&transaction.ID, &transaction.CategoryID, &transaction.Type, &transaction.Amount, &transaction.CreatedAt, &transaction.UpdatedAt); err != nil {
+		if err := rows.Scan(&transaction.ID, &transaction.CategoryID, &transaction.Amount, &transaction.CreatedAt, &transaction.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("RowsScan:%w", err)
 		}
 

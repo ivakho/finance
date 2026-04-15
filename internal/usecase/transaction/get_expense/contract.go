@@ -3,8 +3,9 @@ package get_expense
 import (
 	"context"
 	"finance/internal/usecase/transaction"
+	"time"
 )
 
 type transactionRepo interface {
-	GetExpense(ctx context.Context, categoryID int) ([]transaction.Transaction, error)
+	GetTransaction(ctx context.Context, categoryID int, dateFrom, dateTo time.Time) ([]transaction.Transaction, error)
 }

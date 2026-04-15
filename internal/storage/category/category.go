@@ -75,21 +75,56 @@ func (s *storage) UpdateCategory(ctx context.Context, id int, name string) error
 	return nil
 }
 
-func (s *storage) DeleteCategory(ctx context.Context, id int) error {
-	query := "delete from category where id = $1"
+// func (s *storage) DeleteCategory(ctx context.Context, id int) error {
+// 	query := "delete from category where id = $1"
 
-	result, err := s.postgresdb.DB.ExecContext(ctx, query, id)
+// 	result, err := s.postgresdb.DB.ExecContext(ctx, query, id)
+// 	if err != nil {
+// 		return fmt.Errorf("ExecContext:%w", err)
+// 	}
+
+// 	rowAffected, err := result.RowsAffected()
+// 	if err != nil {
+// 		return fmt.Errorf("RowsAffected:%w", err)
+// 	}
+
+// 	if rowAffected == 0 {
+// 		return ErrCategoryNotFound
+// 	}
+
+// 	return nil
+// }
+
+func (s *storage) DeleteCategory(ctx context.Context, id int) error {
+	tx, err := s.postgresdb.DB.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("ExecContext:%w", err)
+		return fmt.Errorf("BeginTx: %w", err)
+	}
+	defer tx.Rollback()
+
+	deleteTransactionsQuery := "DELETE FROM transactions WHERE category_id = $1"
+	_, err = tx.ExecContext(ctx, deleteTransactionsQuery, id)
+	if err != nil {
+		return fmt.Errorf("Delete transactions: %w", err)
+	}
+
+	deleteCategoryQuery := "DELETE FROM category WHERE id = $1"
+	result, err := tx.ExecContext(ctx, deleteCategoryQuery, id)
+	if err != nil {
+		return fmt.Errorf("Delete category: %w", err)
 	}
 
 	rowAffected, err := result.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("RowsAffected:%w", err)
+		return fmt.Errorf("RowsAffected: %w", err)
 	}
 
 	if rowAffected == 0 {
 		return ErrCategoryNotFound
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("Commit: %w", err)
 	}
 
 	return nil

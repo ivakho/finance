@@ -9,9 +9,9 @@ import (
 	addtransaction "finance/internal/api/handler/transaction/add"
 	deletetransaction "finance/internal/api/handler/transaction/delete"
 	gettransaction "finance/internal/api/handler/transaction/get"
-	getalltransaction "finance/internal/api/handler/transaction/get_all"
 	getexpensetransaction "finance/internal/api/handler/transaction/get_expense"
 	getincometransaction "finance/internal/api/handler/transaction/get_income"
+	"os"
 
 	updatetransaction "finance/internal/api/handler/transaction/update"
 	categoryrepo "finance/internal/repository/category"
@@ -26,33 +26,46 @@ import (
 	usecasetransactionadd "finance/internal/usecase/transaction/add"
 	usecasetransactiondelete "finance/internal/usecase/transaction/delete"
 	usecasetransactionget "finance/internal/usecase/transaction/get"
-	usecasetransactiongetall "finance/internal/usecase/transaction/get_all"
 	usecasetransactiongetexpense "finance/internal/usecase/transaction/get_expense"
 	usecasetransactiongetincome "finance/internal/usecase/transaction/get_income"
-
 	usecasetransactionupdate "finance/internal/usecase/transaction/update"
+
+	botservice "finance/internal/service/tg_bot"
 
 	"log"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors" 
 )
 
 func main() {
 	ctx := context.Background()
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No .env file found")
+	}
+
 	postgresDB, err := storage.NewPostgresDB(storage.Config{
-		Host:     "localhost",
-		Port:     "5442",
-		Username: "postgres",
-		DBName:   "postgres",
-		Password: "qwerty",
-		SSLMode:  "disable",
+		Host:     os.Getenv("DB_HOST"),
+		Port:     os.Getenv("DB_PORT"),
+		Username: os.Getenv("DB_USERNAME"),
+		DBName:   os.Getenv("DB_NAME"),
+		Password: os.Getenv("DB_PASSWORD"),
+		SSLMode:  os.Getenv("DB_SSLMODE"),
 	})
 
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	botService := botservice.New()
+	go func() {
+		botService.Handle()
+	}()
 
 	categoryStorage := categorystorage.New(postgresDB)
 	transactionStorage := transactionstorage.New(postgresDB)
@@ -71,7 +84,6 @@ func main() {
 	handlerCategoryDelete := deletecategory.New(ctx, usecaseCategoryDelete)
 
 	usecaseTransactionAdd := usecasetransactionadd.New(transactionRepo)
-	usecaseTransactionGetAll := usecasetransactiongetall.New(transactionRepo)
 	usecaseTransactionGetIncome := usecasetransactiongetincome.New(transactionRepo)
 	usecaseTransactionGetExpense := usecasetransactiongetexpense.New(transactionRepo)
 	usecaseTransactionGet := usecasetransactionget.New(transactionRepo)
@@ -79,7 +91,6 @@ func main() {
 	usecaseTransactionDelete := usecasetransactiondelete.New(transactionRepo)
 
 	handlerTransactionAdd := addtransaction.New(ctx, usecaseTransactionAdd)
-	handlerTransactionGetAll := getalltransaction.New(ctx, usecaseTransactionGetAll)
 	handlerTransactionGetIncome := getincometransaction.New(ctx, usecaseTransactionGetIncome)
 	handlerTransactionGetExpense := getexpensetransaction.New(ctx, usecaseTransactionGetExpense)
 
@@ -88,6 +99,14 @@ func main() {
 	handlerTransactionDelete := deletetransaction.New(ctx, usecaseTransactionDelete)
 
 	router := gin.New()
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5174"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	category := router.Group("/category")
 	{
@@ -100,13 +119,12 @@ func main() {
 	transaction := router.Group("/transactions")
 	{
 		transaction.POST("/", handlerTransactionAdd.AddTransaction)
-		transaction.GET("/getAll/:id", handlerTransactionGetAll.GetAllTransaction)
-		transaction.GET("/income/:id", handlerTransactionGetIncome.GetIncome)
-		transaction.GET("/expense/:id", handlerTransactionGetExpense.GetExpense)
-		transaction.GET("/", handlerTransactionGet.GetTransaction)
+		transaction.GET("/getIncome/", handlerTransactionGetIncome.GetIncome)
+		transaction.GET("/getExpense/", handlerTransactionGetExpense.GetExpense)
+		transaction.GET("/getAll/", handlerTransactionGet.GetTransaction)
 		transaction.PUT("/", handlerTransactionUpdate.UpdateTransaction)
 		transaction.DELETE("/:id", handlerTransactionDelete.DeleteTransaction)
 	}
 
-	router.Run(":8080")
+	router.Run(":" + os.Getenv("APP_PORT"))
 }
