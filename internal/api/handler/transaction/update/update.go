@@ -28,6 +28,6 @@ func (h *Handler) UpdateTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success",
 		"status":  http.StatusOK,
-		"value":   fmt.Sprintf("amount was changed to %s", requestBody.Amount),
+		"value":   fmt.Sprintf("amount was changed to %d", requestBody.Amount),
 	})
 }
