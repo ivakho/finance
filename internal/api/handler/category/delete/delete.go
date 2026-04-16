@@ -21,8 +21,8 @@ func (h *Handler) DeleteCategory(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "success", 
-		"status": http.StatusOK, 
-		"value": fmt.Sprintf("category with id: %d deleted", id),
+		"message": "success",
+		"status":  http.StatusOK,
+		"value":   fmt.Sprintf("category with id: %d deleted", id),
 	})
 }

@@ -25,9 +25,9 @@ func (h *Handler) GetTransactionByID(c *gin.Context) {
 		ID:           result.ID,
 		CategoryID:   result.CategoryID,
 		CategoryName: result.CategoryName,
-		Amount:    result.Amount,
-		CreatedAt: result.CreatedAt,
-		UpdatedAt: result.UpdatedAt,
+		Amount:       result.Amount,
+		CreatedAt:    result.CreatedAt,
+		UpdatedAt:    result.UpdatedAt,
 	}
 
 	c.JSON(http.StatusOK, gin.H{

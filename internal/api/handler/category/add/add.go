@@ -32,5 +32,7 @@ func (h *Handler) AddCategory(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "success", "status": http.StatusOK})
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
+	})
 }

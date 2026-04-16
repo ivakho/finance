@@ -26,5 +26,9 @@ func (h *Handler) GetAllCategory(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "success", "status": http.StatusOK, "value": categories})
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
+		"status":  http.StatusOK,
+		"value":   categories,
+	})
 }
