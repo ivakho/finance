@@ -1,7 +1,6 @@
 package add
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -18,12 +17,18 @@ func (h *Handler) AddCategory(c *gin.Context) {
 	}
 
 	if len(requestBody.Name) > 30 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("too long category name")})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "error",
+			"error":   "too long category name",
+		})
 		return
 	}
 
 	if len(requestBody.Name) < 2 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("too short category name")})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "error",
+			"error":   "too short category name",
+		})
 		return
 	}
 
