@@ -118,6 +118,10 @@ func main() {
 
 	origins := strings.Split(os.Getenv("CORS_ALLOWED_ORIGINS"), ",")
 
+	for i := range origins {
+		origins[i] = strings.TrimSpace(origins[i])
+	}
+
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     origins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
@@ -148,5 +152,11 @@ func main() {
 		transaction.DELETE("/:id", handlerTransactionDelete.DeleteTransaction)
 	}
 
-	router.Run(":" + os.Getenv("APP_PORT"))
+	// router.Run(":" + os.Getenv("APP_PORT"))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = os.Getenv("APP_PORT")
+	}
+
+	router.Run("0.0.0.0:" + port)
 }
