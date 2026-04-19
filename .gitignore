@@ -21,8 +21,6 @@ coverage.out
 profile.out
 cover.out
 
-go.sum
-
 .idea/
 .vscode/
 *.swp
