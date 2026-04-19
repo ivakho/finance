@@ -20,6 +20,22 @@ func (h *Handler) UpdateCategory(c *gin.Context) {
 		return
 	}
 
+	if len(requestBody.Name) > 30 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "error",
+			"error":   "too long category name",
+		})
+		return
+	}
+
+	if len(requestBody.Name) < 2 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "error",
+			"error":   "too short category name",
+		})
+		return
+	}
+
 	if err := h.usecaseUpdateCategory.Update(c.Request.Context(), requestBody.ID, requestBody.Name); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -28,5 +44,6 @@ func (h *Handler) UpdateCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success",
 		"status":  http.StatusOK,
-		"value":   fmt.Sprintf("category name was changed to %s", requestBody.Name)})
+		"value":   fmt.Sprintf("category name was changed to %s", requestBody.Name),
+	})
 }

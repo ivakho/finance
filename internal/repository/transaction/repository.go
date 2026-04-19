@@ -2,9 +2,8 @@ package transaction
 
 import (
 	"context"
+	"finance/internal/usecase/transaction"
 	"log"
-	// storagemodel "finance/internal/storage/transaction"
-	usecasemodel "finance/internal/usecase/transaction"
 	"time"
 
 	"fmt"
@@ -22,7 +21,23 @@ func (r *Repository) AddTransaction(ctx context.Context, categoryID int, amount 
 	return r.transactionStorage.AddTransaction(ctx, categoryID, amount, createdAt)
 }
 
-func (r *Repository) GetTransaction(ctx context.Context, categoryID int, dateFrom, dateTo time.Time) ([]usecasemodel.Transaction, error) {
+func (r *Repository) GetTransactionByID(ctx context.Context, id int) (transaction.TransactionByID, error) {
+	result, err := r.transactionStorage.GetTransactionByID(ctx, id)
+	if err != nil {
+		return transaction.TransactionByID{}, fmt.Errorf("GetTransactionByID: %w", err)
+	}
+
+	return transaction.TransactionByID{
+		ID:         result.ID,
+		CategoryID: result.CategoryID,
+		CategoryName: result.CategoryName,
+		Amount:     result.Amount,
+		CreatedAt:  result.CreatedAt,
+		UpdatedAt:  result.UpdatedAt,
+	}, nil
+}
+
+func (r *Repository) GetTransaction(ctx context.Context, categoryID int, dateFrom, dateTo time.Time) ([]transaction.Transaction, error) {
 	result, err := r.transactionStorage.GetTransaction(ctx, categoryID, dateFrom, dateTo)
 
 	if dateFrom.IsZero() {
@@ -35,19 +50,17 @@ func (r *Repository) GetTransaction(ctx context.Context, categoryID int, dateFro
 	if err != nil {
 		return nil, fmt.Errorf("GetTransaction:%w", err)
 	}
-	transactions := make([]usecasemodel.Transaction, 0, len(result))
+	transactions := make([]transaction.Transaction, 0, len(result))
 
 	for _, v := range result {
-		tx := usecasemodel.Transaction{
+		tx := transaction.Transaction{
 			ID:         v.ID,
 			CategoryID: v.CategoryID,
 			Amount:     v.Amount,
 			CreatedAt:  v.CreatedAt,
+			UpdatedAt:  v.UpdatedAt,
 		}
 
-		if v.UpdatedAt != nil {
-			tx.UpdatedAt = *v.UpdatedAt
-		}
 		transactions = append(transactions, tx)
 
 	}

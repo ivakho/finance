@@ -8,3 +8,9 @@ type Category struct {
 	CreatedAt time.Time  `db:"created_at"`
 	UpdatedAt *time.Time `db:"updated_at"`
 }
+
+type CategoryTotal struct {
+	ID    int    `db:"id"`
+	Name  string `db:"name"`
+	Total int64  `db:"total"`
+}

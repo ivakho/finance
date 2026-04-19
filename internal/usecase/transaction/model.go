@@ -9,7 +9,7 @@ type Transaction struct {
 	CategoryID int
 	Amount     int64
 	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	UpdatedAt  *time.Time
 }
 
 type Transactions struct {
@@ -22,4 +22,13 @@ type TransactionAdd struct {
 	TxType     string
 	Amount     int64
 	CreatedAt  time.Time
+}
+
+type TransactionByID struct {
+	ID           int
+	CategoryID   int
+	CategoryName string
+	Amount       int64
+	CreatedAt    time.Time
+	UpdatedAt    *time.Time
 }

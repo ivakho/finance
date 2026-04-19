@@ -10,9 +10,11 @@ type Transaction struct {
 	UpdatedAt  *time.Time `db:"updated_at"`
 }
 
-type TransactionFilter struct {
-	CategoryID int
-	DateFrom   *time.Time
-	DateTo     *time.Time
-	Limit      int
+type TransactionByID struct {
+	ID           int
+	CategoryID   int
+	CategoryName string
+	Amount       int64
+	CreatedAt    time.Time
+	UpdatedAt    *time.Time
 }

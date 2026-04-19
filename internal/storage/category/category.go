@@ -31,6 +31,21 @@ func (s *storage) AddCategory(ctx context.Context, name string) error {
 	return nil
 }
 
+func (s *storage) GetCategoryByID(ctx context.Context, id int) (Category, error) {
+	query := "select id, name, created_at, updated_at from category where id = $1"
+
+	var category Category
+
+	err := s.postgresdb.DB.QueryRowContext(ctx, query, id).
+		Scan(&category.ID, &category.Name, &category.CreatedAt, &category.UpdatedAt)
+
+	if err != nil {
+		return Category{}, fmt.Errorf("QueryRowContext: %w", err)
+	}
+
+	return category, nil
+}
+
 func (s *storage) GetAllCategory(ctx context.Context) ([]Category, error) {
 	query := "select id, name, created_at, updated_at from category"
 	rows, err := s.postgresdb.DB.QueryContext(ctx, query)
@@ -55,6 +70,70 @@ func (s *storage) GetAllCategory(ctx context.Context) ([]Category, error) {
 	return categories, nil
 }
 
+func (s *storage) GetCategoryIncomeTotal(ctx context.Context, dateFrom, dateTo time.Time) ([]CategoryTotal, error) {
+	query := `
+        select 
+            c.id as category_id,
+            c.name as category_name,
+            coalesce(sum(t.amount), 0) as total
+        from category c
+        left join transactions t 
+            on c.id = t.category_id 
+            and t.created_at::date BETWEEN $1 and $2
+						and t.amount > 0
+						group by c.id, c.name order by c.id
+    `
+
+	rows, err := s.postgresdb.DB.QueryContext(ctx, query, dateFrom, dateTo)
+	if err != nil {
+		return nil, fmt.Errorf("QueryContext: %w", err)
+	}
+	defer rows.Close()
+
+	var result []CategoryTotal
+	for rows.Next() {
+		var ct CategoryTotal
+		if err := rows.Scan(&ct.ID, &ct.Name, &ct.Total); err != nil {
+			return nil, fmt.Errorf("Scan: %w", err)
+		}
+		result = append(result, ct)
+	}
+
+	return result, nil
+}
+
+func (s *storage) GetCategoryExpenseTotal(ctx context.Context, dateFrom, dateTo time.Time) ([]CategoryTotal, error) {
+	query := `
+        select 
+            c.id as category_id,
+            c.name as category_name,
+            coalesce(sum(t.amount), 0) as total
+        from category c
+        left join transactions t 
+            on c.id = t.category_id 
+            and t.created_at::date BETWEEN $1 and $2
+						and t.amount < 0
+						group by c.id, c.name order by c.id
+    `
+
+	rows, err := s.postgresdb.DB.QueryContext(ctx, query, dateFrom, dateTo)
+	if err != nil {
+		return nil, fmt.Errorf("QueryContext: %w", err)
+	}
+	defer rows.Close()
+
+	var result []CategoryTotal
+	for rows.Next() {
+		var ct CategoryTotal
+		if err := rows.Scan(&ct.ID, &ct.Name, &ct.Total); err != nil {
+			return nil, fmt.Errorf("Scan: %w", err)
+		}
+		result = append(result, ct)
+	}
+
+	return result, nil
+}
+
 func (s *storage) UpdateCategory(ctx context.Context, id int, name string) error {
 	query := "update category set name = $1, updated_at = $2 where id = $3"
 
@@ -74,26 +153,6 @@ func (s *storage) UpdateCategory(ctx context.Context, id int, name string) error
 
 	return nil
 }
-
-// func (s *storage) DeleteCategory(ctx context.Context, id int) error {
-// 	query := "delete from category where id = $1"
-
-// 	result, err := s.postgresdb.DB.ExecContext(ctx, query, id)
-// 	if err != nil {
-// 		return fmt.Errorf("ExecContext:%w", err)
-// 	}
-
-// 	rowAffected, err := result.RowsAffected()
-// 	if err != nil {
-// 		return fmt.Errorf("RowsAffected:%w", err)
-// 	}
-
-// 	if rowAffected == 0 {
-// 		return ErrCategoryNotFound
-// 	}
-
-// 	return nil
-// }
 
 func (s *storage) DeleteCategory(ctx context.Context, id int) error {
 	tx, err := s.postgresdb.DB.BeginTx(ctx, nil)

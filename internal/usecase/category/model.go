@@ -8,3 +8,9 @@ type Category struct {
 	CreatedAt time.Time
 	UpdatedAt *time.Time
 }
+
+type CategoryTotal struct {
+	ID    int
+	Name  string
+	Total int64
+}

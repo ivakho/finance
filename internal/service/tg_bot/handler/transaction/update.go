@@ -106,7 +106,7 @@ func HandleUpdateTransaction(
 
 	case "transaction_update_amount":
 		amount, err := strconv.ParseInt(text, 10, 64)
-		if err != nil || amount <= 0 {
+		if err != nil || amount == 0 {
 			return tgbotapi.NewMessage(chatID, "Enter valid amount")
 		}
 

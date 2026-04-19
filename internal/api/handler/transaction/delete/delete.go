@@ -1,6 +1,7 @@
 package delete
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -19,5 +20,9 @@ func (h *Handler) DeleteTransaction(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
+		"status":  http.StatusOK,
+		"value":   fmt.Sprintf("transaction with id: %d deleted", id),
+	})
 }
