@@ -1,92 +1,63 @@
-# 💰 Finance Tracker (Telegram Bot + API)
+# Finance Tracker Backend (Go)
 
-## 📌 О проекте
+This is a backend service for a personal finance management application.
 
-Это pet-проект для учета личных финансов, который состоит из:
+The system allows you to:
+- Manage **categories**
+- Track **income and expenses**
+- View totals and transactions
+- Interact with the system via **REST API** or a **Telegram Bot**
 
-- 🧠 Backend API (Go + Gin)
-- 🤖 Telegram-бота (Go)
-- 🗄️ PostgreSQL базы данных
-
-Пользователь взаимодействует с системой через Telegram-бота и может:
-
-- управлять категориями 
-- управлять транзакциями
-
----
-
-## ❗ Какую проблему решает
-
-Большинство людей:
-- не ведут учет финансов
-- не понимают, куда уходят деньги
-- не анализируют доходы/расходы
-
-Этот проект решает это за счет:
-
-✅ простого интерфейса (Telegram)  
-✅ минимального количества действий  
-✅ структурированных данных (категории + транзакции)  
+The entire project is written in **Golang** and uses:
+- Gin (HTTP framework)
+- PostgreSQL (database)
+- Docker (for DB)
+- Telegram Bot API (for chat interaction)
 
 ---
 
-## ⚙️ Основной функционал
+# 🚀 Features
 
-### 📂 Категории
-- Добавить категорию
-- Изменить категорию
-- Удалить категорию
-
----
-
-### 💸 Транзакции
-
-#### ➕ Добавление
-- выбрать тип (Income / Expense)
-- выбрать категорию
-- ввести сумму
-- ввести дату
+- Categories CRUD
+- Transactions CRUD
+- Income / Expense separation
+- Aggregated totals
+- Telegram bot with full interaction flow
+- Clean architecture (handler → usecase → repository → storage)
 
 ---
 
-#### 📄 Просмотр
-- выбрать период (date_from / date_to)
-- получить список транзакций
+# ⚙️ Requirements
+
+- Go 1.20+
+- Docker + Docker Compose
+- `migrate` CLI (https://github.com/golang-migrate/migrate)
 
 ---
 
-#### ✏️ Обновление
-- выбрать период
-- получить список с номерами
-- выбрать транзакцию
-- ввести новую сумму
+## 🌐 Live Demo
 
----
+The frontend application is available on GitHub Pages:
 
-#### ❌ Удаление
-- выбрать период
-- получить список
-- выбрать транзакцию
-- подтвердить удаление
+👉 https://ivakho.github.io/fincalc/
 
----
+# 📦 Installation & Setup
 
-## 🚀 Как запустить
-
-### 1. Клонировать проект
+## 1. Clone repository
 
 ```bash
 git clone <repo_url>
 cd finance 
 ```
 
-### 2. Создать телеграм бота 
+### 2. Telegram Bot Setup
 
-Через @BotFather создать телеграм бота для получения токена и последующей работы
+Create a bot via @BotFather in telegram (https://web.telegram.org/)
+Get your telegram token
 
-### 3. Настроить .env
+### 3. Configure .env
 
-Создай файл .env и заполнить его:
+Create .env file:
 
 ```env
 DB_HOST=localhost
@@ -98,32 +69,117 @@ DB_SSLMODE=disable
 APP_PORT=8080
 TG_TOKEN=[your telegram token]
 API_URL=http://localhost:8080
+CORS_ALLOWED_ORIGINS=[http://localhost:5173, http://localhost:5174, etc.]
 ```
 
-### 4. Запустить Docker
+### 4. Start PostgreSQL (Docker)
 
 ```bash
 docker compose up
 ```
 
-При первом запуске также накатить миграции командой
+Don't forget to make database migrations with first init
+
 ```bash
 make migrate
 ```
 
-### 5. Запустить приложение
+### 5. Run backend server
 
 ```bash
 go run cmd/main.go
 ```
 
-### 6. Открыть телеграм бота
+Server will be available at:
+http://localhost:8090
 
-Внутри телеграм бота есть меню, которое пошагово проведет вас по всем доступным сценариями
+Bot Features
 
-Пример сценария "Добавление транзакции (доход)":
-1. Нажмите кнопку "Income" в главном меню
-2. Выберите категорию в которую хотите добавить транзакцию
-3. Нажмите кнопку "Add Transaction"
-4. Введите сумму транзакции (например: 200)
-5. Введите дату создания транзакции в формате год-месяц-число (например: 2026-04-05)
+Main menu contains:
+
+📉 Expenses
+📈 Income
+📂 Categories
+
+You can:
+
+Add transactions
+Update transactions
+Delete transactions
+View lists
+Manage categories
+
+All actions are handled step-by-step via bot or frontend version which available at .
+
+---
+
+## 📡 API
+
+### Categories
+- POST /category/
+- GET /category/
+- GET /category/:id
+- PUT /category/
+- DELETE /category/:id
+
+### Transactions
+- POST /transactions/
+- GET /transactions/:id
+- GET /transactions/getAll
+- GET /transactions/getIncome
+- GET /transactions/getExpense
+- PUT /transactions/
+- DELETE /transactions/:id
+
+---
+
+## 🧪 Examples
+
+### Create category
+```bash
+curl -X POST http://localhost:8090/category/ \
+-H "Content-Type: application/json" \
+-d '{"name": "Food"}'
+```
+
+### Create transaction
+```bash
+curl -X POST http://localhost:8090/transactions/ \
+-H "Content-Type: application/json" \
+-d '{"category_id":1,"type":"expense","amount":1000,"created_at":"2026-04-18"}'
+```
+
+---
+
+## 🧱 Architecture
+
+```
+handler → usecase → repository → storage
+```
+
+---
+
+## 📂 Structure
+
+```
+internal/
+  api/
+  usecase/
+  repository/
+  storage/
+  service/
+
+db/
+  migrations/
+```
+
+---
+
+## 🛠 Commands
+
+```bash
+make migrate
+make tidy
+```
+
+---

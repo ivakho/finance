@@ -16,6 +16,7 @@ import (
 	getexpensetransaction "finance/internal/api/handler/transaction/get_expense"
 	getincometransaction "finance/internal/api/handler/transaction/get_income"
 	"os"
+	"strings"
 
 	updatetransaction "finance/internal/api/handler/transaction/update"
 	categoryrepo "finance/internal/repository/category"
@@ -115,8 +116,10 @@ func main() {
 
 	router := gin.New()
 
+	origins := strings.Split(os.Getenv("CORS_ALLOWED_ORIGINS"), ",")
+
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5174"},
+		AllowOrigins:     origins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
