@@ -19,6 +19,7 @@ RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.3/
     | tar -xz -C /usr/local/bin migrate
 
 COPY --from=builder /app/main .
+COPY --from=builder /app/db ./db
 
 EXPOSE 8090
 
