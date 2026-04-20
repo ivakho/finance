@@ -153,10 +153,4 @@ func main() {
 	}
 
 	router.Run(":" + os.Getenv("APP_PORT"))
-	// port := os.Getenv("PORT")
-	// if port == "" {
-	// 	port = os.Getenv("APP_PORT")
-	// }
-
-	// router.Run("0.0.0.0:" + port)
 }

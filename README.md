@@ -41,6 +41,10 @@ The frontend application is available on GitHub Pages:
 
 👉 https://ivakho.github.io/fincalc/
 
+or you can try telegram bot @fifinace_bot:
+
+👉 https://t.me/fifinace_bot
+
 # 📦 Installation & Setup
 
 ## 1. Clone repository
